@@ -3,7 +3,39 @@
  * Creates a dynamic constellation effect that reacts to mouse movement.
  */
 
+class FogCloud {
+    constructor(canvasWidth, canvasHeight) {
+        this.radius = Math.random() * 300 + 200;
+        this.x = Math.random() * canvasWidth;
+        this.y = Math.random() * canvasHeight;
+        this.vx = (Math.random() - 0.5) * 0.2;
+        this.vy = (Math.random() - 0.5) * 0.2;
+    }
+
+    update(canvasWidth, canvasHeight) {
+        this.x += this.vx;
+        this.y += this.vy;
+
+        if (this.x < -this.radius) this.x = canvasWidth + this.radius;
+        if (this.x > canvasWidth + this.radius) this.x = -this.radius;
+        if (this.y < -this.radius) this.y = canvasHeight + this.radius;
+        if (this.y > canvasHeight + this.radius) this.y = -this.radius;
+    }
+
+    draw(ctx) {
+        const gradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.radius);
+        gradient.addColorStop(0, 'rgba(77, 171, 255, 0.08)');
+        gradient.addColorStop(1, 'rgba(77, 171, 255, 0)');
+
+        ctx.fillStyle = gradient;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        ctx.fill();
+    }
+}
+
 class BackgroundParticles {
+
     constructor() {
         this.canvas = document.getElementById('bg-canvas');
         this.ctx = this.canvas.getContext('2d');
@@ -12,8 +44,11 @@ class BackgroundParticles {
         this.particleCount = 100;
         this.connectionDistance = 150;
         this.mouseInfluenceRadius = 200;
+        this.fogClouds = [];
+        this.fogCount = 6;
 
         this.init();
+
     }
 
     init() {
@@ -24,12 +59,17 @@ class BackgroundParticles {
             this.mouse.y = e.clientY;
         });
 
+        for (let i = 0; i < this.fogCount; i++) {
+            this.fogClouds.push(new FogCloud(this.canvas.width, this.canvas.height));
+        }
+
         for (let i = 0; i < this.particleCount; i++) {
             this.particles.push(new Particle(this.canvas.width, this.canvas.height));
         }
 
         this.animate();
     }
+
 
     resize() {
         this.canvas.width = window.innerWidth;
@@ -40,7 +80,14 @@ class BackgroundParticles {
         requestAnimationFrame(() => this.animate());
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
+        // Draw Subtle Mist
+        for (let cloud of this.fogClouds) {
+            cloud.update(this.canvas.width, this.canvas.height);
+            cloud.draw(this.ctx);
+        }
+
         for (let i = 0; i < this.particles.length; i++) {
+
             const p = this.particles[i];
             p.update(this.mouse, this.canvas.width, this.canvas.height);
             p.draw(this.ctx);
