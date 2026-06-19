@@ -1,6 +1,9 @@
 # 🧩 Theris Sudoku
 
+**Developed with love for Theresa <3**
+
 **A cinematic, minimalist puzzle experience designed for focus and elegance.**
+
 
 ![Vanilla JS](https://img.shields.io/badge/Vanilla_JS-f7df1e?style=for-the-badge&logo=javascript&logoColor=black)
 ![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white)
@@ -73,6 +76,7 @@ No installation or build steps are required. This is a purely client-side applic
 
 ---
 
-## ❤️ Dedication
+## 🎨 Design Philosophy
 
-This project is developed with love for **Theresa**. <3
+Theris Sudoku is built on the principles of **Minimalism** and **Focus**. By utilizing high whitespace, a monochromatic palette with surgical accent colors, and smooth atmospheric animations, the app transforms a mentally taxing activity into a meditative experience.
+
