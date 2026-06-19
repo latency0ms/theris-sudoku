@@ -81,11 +81,18 @@ header {
 }
 
 .app-title {
-    font-size: 32px;
-    font-weight: 800;
-    letter-spacing: -1px;
+    font-size: 36px;
+    font-weight: 900;
+    letter-spacing: -1.5px;
     color: var(--text-main);
-    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.4));
+}
+
+.title-highlight {
+    background: linear-gradient(135deg, #fff 0%, var(--accent-color) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
 #timer {
