@@ -1,6 +1,6 @@
 # 🧩 Theris Sudoku
 
-**Developed with love for Theresa <3**
+**Developed with love for Theresa ♥️**
 
 **A cinematic, minimalist puzzle experience designed for focus and elegance.**
 
