@@ -75,4 +75,4 @@ No installation or build steps are required. This is a purely client-side applic
 
 ## ❤️ Dedication
 
-This project is developed with love for **Theresa**. <3
+This project is developed with love for **Theresa**. ❤️
