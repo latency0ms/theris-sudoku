@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Theris Sudoku</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <canvas id="bg-canvas"></canvas>
+    <div class="app-container">
+        <header>
+            <h1 class="app-title">Theris Sudoku</h1>
+            <div id="timer">0:00</div>
+        </header>
+        </header>
+
+        <!-- Game Grid -->
+        <div id="sudoku-grid" class="grid"></div>
+
+        <!-- Controls Area -->
+        <div class="controls">
+            <div class="difficulty-selector">
+                <button data-diff="easy" class="btn-diff diff-easy">Easy</button>
+                <button data-diff="medium" class="btn-diff active diff-medium">Medium</button>
+                <button data-diff="hard" class="btn-diff diff-hard">Hard</button>
+                <button data-diff="expert" class="btn-diff diff-expert">Expert</button>
+            </div>
+
+            <div class="action-buttons">
+                <button id="undo-btn" title="Undo">↺</button>
+                <button id="redo-btn" title="Redo">↻</button>
+                <button id="hint-btn" title="Hint">💡</button>
+                <button id="note-toggle" title="Note Mode" class="action-btn">✏️</button>
+            </div>
+
+            <div class="numpad">
+                <button class="num-btn" data-val="1">1</button>
+                <button class="num-btn" data-val="2">2</button>
+                <button class="num-btn" data-val="3">3</button>
+                <button class="num-btn" data-val="4">4</button>
+                <button class="num-btn" data-val="5">5</button>
+                <button class="num-btn" data-val="6">6</button>
+                <button class="num-btn" data-val="7">7</button>
+                <button class="num-btn" data-val="8">8</button>
+                <button class="num-btn" data-val="9">9</button>
+                <button class="num-btn" data-val="0">✕</button>
+            </div>
+        </div>
+
+        <!-- Overlays -->
+        <div id="overlay" class="hidden">
+            <div class="modal">
+                <h2 id="modal-title">Game Over</h2>
+                <p id="modal-msg"></p>
+                <button id="restart-btn">Play Again</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="background.js"></script>
+    <script src="engine.js"></script>
+    <script src="state.js"></script>
+    <script src="ui.js"></script>
+</body>
+</html>
