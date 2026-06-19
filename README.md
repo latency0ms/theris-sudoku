@@ -76,7 +76,6 @@ No installation or build steps are required. This is a purely client-side applic
 
 ---
 
-## 🎨 Design Philosophy
+## ❤️ Dedication
 
-Theris Sudoku is built on the principles of **Minimalism** and **Focus**. By utilizing high whitespace, a monochromatic palette with surgical accent colors, and smooth atmospheric animations, the app transforms a mentally taxing activity into a meditative experience.
-
+This project is developed with love for **Theresa**. <3
