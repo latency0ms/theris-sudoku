@@ -1,5 +1,7 @@
 # 🧩 Theris Sudoku
 
+**Play now: [Live Demo](https://latency0ms.github.io/theris-sudoku/)**
+
 **A cinematic, minimalist puzzle experience designed for focus and elegance.**
 
 ![Vanilla JS](https://img.shields.io/badge/Vanilla_JS-f7df1e?style=for-the-badge&logo=javascript&logoColor=black)
