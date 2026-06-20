@@ -62,7 +62,7 @@ No installation or build steps are required. This is a purely client-side applic
 | `engine.js` | Sudoku generation and backtracking solver algorithms |
 | `state.js` | Game state management, undo/redo logic, and persistence |
 | `ui.js` | DOM bridging and user interaction handlers |
-| `background.js` | Canvas-based particle system and mist effects |
+| `background.js` | Canvas-based particle system and mist effects |\n| `confetti.js` | Particle system for victory celebrations |
 
 ---
 

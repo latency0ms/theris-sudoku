@@ -37,6 +37,12 @@ Objective: Manage the active session, user input, and game rules.
 ### 2.3 Hint Logic
 - Implement a `getHint()` function that fills a selected empty cell with the correct value from the `solvedBoard`.
 
+### 2.4 Note Mode (Pencil Marks)
+- Implement a `notes` property in the game state as a 3D array (`[row][col][values]`).
+- Create a toggle mechanism to switch between "Value Input" and "Note Input".
+- Ensure that placing a final value in a cell automatically clears all notes for that specific cell.
+- Implement persistence of notes via `localStorage`.
+
 ---
 
 ## Phase 3: UI Skeleton & Layout (`index.html`, `style.css`)
