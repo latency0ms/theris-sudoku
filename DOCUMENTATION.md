@@ -26,7 +26,7 @@ The application is split into three distinct layers:
     - Glassmorphism for overlays using `backdrop-filter`.
     - Soft shadows and rounded corners (`12px+`) to create depth.
     - High contrast accent colors for active selections to guide focus.
-- **Interactions**: Springy CSS transitions (cubic-bezier) and haptic-like audio feedback.
+- **Interactions**: Springy CSS transitions (cubic-bezier), haptic-like audio feedback, and a dynamic canvas-based confetti burst upon successful puzzle completion.
 
 ## 📂 File Reference
 
@@ -37,6 +37,7 @@ The application is split into three distinct layers:
 | `engine.js` | Implementation of Sudoku solving and "digging" generation algorithms. |
 | `state.js` | State machine logic, Command pattern implementation, and LocalStorage proxy. |
 | `ui.js` | Event binding, DOM updating functions, and interaction orchestration. |
+| `confetti.js` | Lightweight canvas-based particle system for victory celebrations. |
 
 ## 🧪 Development & Testing (Planned)
 - **Unique Solution Verification**: Every generated puzzle must be passed through the solver to ensure only one solution exists.

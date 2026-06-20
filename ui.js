@@ -225,33 +225,50 @@ class SudokuUI {
      */
     playAudio(type) {
         const ctx = new (window.AudioContext || window.webkitAudioContext)();
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-
         const now = ctx.currentTime;
+
         if (type === 'input') {
-            osc.frequency.setValueAtTime(440, now);
-            gain.gain.setValueAtTime(0.1, now);
-            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
-            osc.start(); osc.stop(now + 0.1);
-        } else if (type === 'error') {
-            osc.frequency.setValueAtTime(150, now);
-            gain.gain.setValueAtTime(0.2, now);
-            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
-            osc.start(); osc.stop(now + 0.3);
-        } else if (type === 'undo' || type === 'redo') {
-            osc.frequency.setValueAtTime(600, now);
-            gain.gain.setValueAtTime(0.1, now);
-            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
-            osc.start(); osc.stop(now + 0.1);
-        } else if (type === 'hint') {
-            osc.frequency.setValueAtTime(880, now);
-            gain.gain.setValueAtTime(0.1, now);
-            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
-            osc.start(); osc.stop(now + 0.2);
+            // Magic Wand Sparkle effect: Rapidly ascending high-pitched tones
+            const notes = [880, 1108, 1318, 1760]; // A5 -> C#6 -> E6 -> A6
+            notes.forEach((freq, i) => {
+                const startOffset = i * 0.04; // Play notes every 40ms
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(freq, now + startOffset);
+                
+                gain.gain.setValueAtTime(0, now + startOffset);
+                gain.gain.linearRampToValueAtTime(0.1, now + startOffset + 0.01);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + startOffset + 0.15);
+                
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start(now + startOffset);
+                osc.stop(now + startOffset + 0.15);
+            });
+        } else {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+
+            if (type === 'error') {
+                osc.frequency.setValueAtTime(150, now);
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                osc.start(); osc.stop(now + 0.3);
+            } else if (type === 'undo' || type === 'redo') {
+                osc.frequency.setValueAtTime(600, now);
+                gain.gain.setValueAtTime(0.1, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+                osc.start(); osc.stop(now + 0.1);
+            } else if (type === 'hint') {
+                osc.frequency.setValueAtTime(880, now);
+                gain.gain.setValueAtTime(0.1, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+                osc.start(); osc.stop(now + 0.2);
+            }
         }
     }
 }
