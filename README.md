@@ -32,18 +32,11 @@ Theris Sudoku is not just a puzzle game; it is a polished, browser-based applica
 
 ## 🛠️ Technical Architecture
 
-### The Stack
-- **Language**: Vanilla JavaScript (ES6+)
-- **Styling**: CSS3 Custom Properties & Flexbox/Grid
-- **Rendering**: HTML5 Canvas (for background effects)
-- **Storage**: Browser `localStorage` for automatic session persistence.
+The project follows a strict three-layer separation of concerns to ensure maintainability and purity. For a deep dive into the implementation details, see [DOCUMENTATION.md](./DOCUMENTATION.md).
 
-### Engineering Highlights
-The project follows a strict three-layer separation of concerns to ensure maintainability and purity:
-
-1.  **Engine Layer (`engine.js`)**: Contains the core mathematical logic. Implements a backtracking algorithm for solving and puzzle generation via a "digging" process.
-2.  **State Layer (`state.js`)**: The brain of the app. Manages session data, timer, mistake counters, and employs the **Command Pattern** to facilitate the Undo/Redo system.
-3.  **UI Layer (`ui.js` & `style.css`)**: Bridges the logic to the DOM. Handles event listeners, animations, and responsive rendering.
+1.  **Engine Layer**: Core mathematical logic, backtracking solver, and puzzle generation.
+2.  **State Layer**: Session management and Undo/Redo history.
+3.  **UI Layer**: DOM bridging, animations, and responsive rendering.
 
 ---
 
