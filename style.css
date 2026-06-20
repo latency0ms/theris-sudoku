@@ -17,6 +17,49 @@
     --shadow-inset: inset 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
+[data-theme="nordic"] {
+    --bg-color: #eef2f3;
+    --glass-bg: rgba(255, 255, 255, 0.7);
+    --glass-border: rgba(0, 0, 0, 0.1);
+    --accent-color: #3498db;
+    --accent-hover: #2980b9;
+    --text-main: #2c3e50;
+    --text-secondary: #7f8c8d;
+    --grid-border: rgba(0, 0, 0, 0.1);
+    --cell-highlight: rgba(52, 152, 219, 0.1);
+    --cell-active: rgba(52, 152, 219, 0.2);
+    --error-color: #e74c3c;
+    --shadow-float: 0 20px 50px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="midnight"] {
+    --bg-color: #1a1a2e;
+    --glass-bg: rgba(45, 45, 68, 0.5);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --accent-color: #bb86fc;
+    --accent-hover: #d7b4ff;
+    --text-main: #fdfdfd;
+    --text-secondary: #a0a0b8;
+    --grid-border: rgba(255, 255, 255, 0.1);
+    --cell-highlight: rgba(187, 134, 252, 0.1);
+    --cell-active: rgba(187, 134, 252, 0.2);
+    --error-color: #ff5c5c;
+}
+
+[data-theme="emerald"] {
+    --bg-color: #0b1a16;
+    --glass-bg: rgba(20, 40, 35, 0.5);
+    --glass-border: rgba(0, 255, 150, 0.1);
+    --accent-color: #00f5a0;
+    --accent-hover: #5fffa5;
+    --text-main: #e0fff5;
+    --text-secondary: #8ba9a2;
+    --grid-border: rgba(0, 255, 150, 0.1);
+    --cell-highlight: rgba(0, 245, 160, 0.1);
+    --cell-active: rgba(0, 245, 160, 0.2);
+    --error-color: #ff4d4d;
+}
+
 * {
     box-sizing: border-box;
     margin: 0;
@@ -105,6 +148,38 @@ header {
     border-radius: 100px;
     border: 1px solid var(--glass-border);
     box-shadow: var(--shadow-inset);
+}
+
+.theme-selector {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 8px;
+}
+
+.btn-theme {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 2px solid var(--glass-border);
+    background: rgba(255, 255, 255, 0.1);
+    cursor: pointer;
+    transition: var(--transition);
+    font-size: 18px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.btn-theme:hover {
+    transform: scale(1.15);
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.btn-theme.active {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 15px var(--accent-color);
+    transform: scale(1.1);
 }
 
 /* Glass Grid */

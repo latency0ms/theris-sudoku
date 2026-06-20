@@ -39,7 +39,26 @@ class SudokuUI {
         this.overlayEl.classList.add('hidden');
     }
 
+    setTheme(theme) {
+        if (theme === 'default') {
+            document.documentElement.removeAttribute('data-theme');
+        } else {
+            document.documentElement.setAttribute('data-theme', theme);
+        }
+    }
+
     setupEventListeners() {
+        // Theme Selection
+        document.querySelectorAll('.btn-theme').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const theme = e.target.dataset.theme;
+                this.setTheme(theme);
+                
+                document.querySelectorAll('.btn-theme').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+            });
+        });
+
         // Difficulty Selection
         document.querySelectorAll('.btn-diff').forEach(btn => {
             btn.addEventListener('click', (e) => {
