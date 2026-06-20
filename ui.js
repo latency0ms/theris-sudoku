@@ -84,6 +84,8 @@ class SudokuUI {
             this.startNewGame(this.state.game.difficulty);
         });
 
+
+
         // Keyboard Support
         window.addEventListener('keydown', (e) => {
             if (e.key >= '1' && e.key <= '9') {
@@ -208,6 +210,9 @@ class SudokuUI {
     }
 
     showGameOver(won) {
+        if (won) {
+            Confetti.shoot();
+        }
         this.modalTitle.textContent = won ? 'Puzzle Solved!' : 'Game Over';
         this.modalMsg.textContent = won 
             ? `Great job! Time: ${this.state.formatTime()}` 
