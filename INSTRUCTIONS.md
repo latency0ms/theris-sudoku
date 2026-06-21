@@ -1,88 +1,84 @@
-# Implementation Instructions: Minimalist Sudoku App
+# 🛠️ Implementation Roadmap: Theris Sudoku
 
-This document provides a step-by-step guide to implementing the Minimalist Sudoku application. The goal is to build a high-quality, responsive browser-based app with an Apple-style aesthetic.
-
-## Phase 1: Core Sudoku Engine (`engine.js`)
-Objective: Build a standalone logic module that handles puzzle generation and solving without any DOM dependencies.
-
-### 1.1 The Solver
-- Implement a backtracking algorithm to solve a given $9\times9$ grid.
-- Ensure the solver can determine if a puzzle has a unique solution (essential for valid puzzle generation).
-
-### 1.2 The Generator
-- Create a function to generate a fully solved board.
-- Implement the "digging" process: selectively remove numbers while ensuring the puzzle remains solvable and has exactly one unique solution.
-
-### 1.3 Difficulty Management
-- Define clue counts for each level:
-    - **Easy**: ~40+ clues
-    - **Medium**: ~30-39 clues
-    - **Hard**: ~25-29 clues
-    - **Expert**: <25 clues
-- Ensure the generator adheres to these constraints.
+This document serves as the technical blueprint for constructing the Theris Sudoku application. The roadmap follows a high-precision engineering approach, prioritizing mathematical integrity and a premium, "Apple-style" user experience.
 
 ---
 
-## Phase 2: Game State & Logic Manager (`state.js`)
-Objective: Manage the active session, user input, and game rules.
+## 🏗️ Phase 1: The Engine Layer (`engine.js`)
+**Architectural Goal:** Engineer a standalone, pure-logic module that handles all mathematical heavy lifting without any DOM or side-effect dependencies.
 
-### 2.1 State Tracking
-- Maintain a state object containing: `initialBoard`, `currentBoard`, `solvedBoard`, `mistakes`, and `timer`.
-- Implement `localStorage` synchronization to save and load the current game automatically.
+### 1.1 The Solver Logic
+- Implement a high-performance **backtracking algorithm** to traverse the $9\times9$ search space.
+- Integrate **Constraint Propagation (AC-3)** to prune the search tree and accelerate solving for complex puzzles.
+- Ensure the engine can verify "Uniqueness" by checking for exactly one valid solution path.
 
-### 2.2 Undo/Redo System
-- Implement a history stack. Every user input should be pushed onto the stack.
-- Provide `undo()` and `redo()` methods to traverse this stack.
+### 1.2 The Procedural Generator
+- Develop a **Solved Board Generator** that populates a grid using randomized, valid sequences.
+- Implement the **"Digger" Algorithm**: Systematically remove clues while utilizing the solver to guarantee each puzzle remains mathematically unique.
 
-### 2.3 Hint Logic
-- Implement a `getHint()` function that fills a selected empty cell with the correct value from the `solvedBoard`.
-
-### 2.4 Note Mode (Pencil Marks)
-- Implement a `notes` property in the game state as a 3D array (`[row][col][values]`).
-- Create a toggle mechanism to switch between "Value Input" and "Note Input".
-- Ensure that placing a final value in a cell automatically clears all notes for that specific cell.
-- Implement persistence of notes via `localStorage`.
-
----
-
-## Phase 3: UI Skeleton & Layout (`index.html`, `style.css`)
-Objective: Build a responsive, minimalist structure.
-
-### 3.1 HTML Structure
-- Create a container for the $9\times9$ grid.
-- Add a dedicated Numeric Keypad (1-9) and utility buttons (Undo, Redo, Hint).
-- Implement a difficulty selector and a timer display.
-
-### 3.2 CSS Grid Layout
-- Use `display: grid` for the Sudoku board.
-- Ensure the layout is fluid; use `rem` or `vh/vw` units to ensure it fits on mobile screens without scrolling.
-- Design the "Apple Style": high whitespace, rounded corners, and subtle shadows.
+### 1.3 Difficulty Configuration
+- Utilize a centralized `Config` object to maintain strict control over clue density:
+    - **Easy**: ✨ ~40+ clues (Basic logic)
+    - **Medium**: 🌿 ~30-39 clues (Intermediate patterns)
+    - **Hard**: 🌲 ~25-29 clues (Advanced strategies)
+    - **Expert**: 🏔️ <25 clues (Advanced chaining/bifurcation)
 
 ---
 
-## Phase 4: Interaction & UX (`ui.js`)
-Objective: Connect the engine and state manager to the DOM.
+## 🧠 Phase 2: The State & Persistence Layer (`state.js`)
+**Architectural Goal:** Create a robust "Brain" for the application, managing real-time game state, move history, and session durability.
 
-### 4.1 Input Flow (Cell $\rightarrow$ Number)
-- Implement cell selection logic. When a cell is selected:
-    - Highlight the active row, column, and $3\times3$ subgrid.
-    - Highlight all other cells on the board containing the same number.
-- Bind the numeric keypad and keyboard events to update the state and re-render the cell.
+### 2.1 Reactive State Management
+- Maintain a reactive state object capturing: `initialBoard`, `currentBoard`, `solvedBoard`, `mistakes`, and `timestamp`.
+- Implement **LocalStorage Guarding**: Ensure all saved/loaded data passes schema validation to prevent corruption from stale sessions.
 
-### 4.2 Visual Feedback & Animations
-- Add a CSS animation (shake) for incorrect entries.
-- Implement smooth transitions for cell selection highlights.
-- Create a "victory" overlay with a minimalist celebration effect.
+### 2.2 The Command Pattern (Undo/Redo)
+- Implement a dual-stack architecture (`history` and `redoStack`).
+- Every user interaction is treated as a discrete "Command" object, allowing for seamless traversal of the game's timeline.
 
-### 4.3 Audio Integration
-- Integrate soft audio cues for:
-    - Valid input (pop).
-    - Error (low tone).
-    - Game win (chime).
+### 2.3 Advanced Hinting System
+- Build a multi-tier hint engine:
+    - **Tier 1 (Naked Singles):** Identify cells with only one valid candidate.
+    - **Tier 2 (Hidden Singles):** Scan units (row/col/box) for values localized to a single cell.
+    - **Tier 3 (Peek Mode):** Provide logical explanations without mutating the board state.
+
+### 2.4 The Note System (Pencil Marks)
+- Implement a 3D array structure (`[row][col][values]`) for high-density note tracking.
+- Automate note cleanup when a definitive value is placed in a cell.
 
 ---
 
-## Phase 5: Polishing & QA
-- **Cross-Browser Testing**: Ensure consistency across Chrome, Safari, and Firefox.
-- **Mobile Audit**: Verify that the numeric keypad is ergonomically placed for thumb usage on mobile devices.
-- **Edge Case Check**: Test "impossible" scenarios (e.g., clicking hint on a filled cell).
+## 📐 Phase 3: Structural Foundation (`index.html`, `style.css`)
+**Architectural Goal:** Establish the "Design System"—a responsive, glassmorphic layout optimized for zero layout shift.
+
+### 3.1 Semantic HTML5 Skeleton
+- Construct a clean DOM hierarchy: A central grid container, a control dashboard (Undo/Redo/Hint), and a persistent numeric numpad.
+- Implement accessibility landmarks to ensure the app is navigable via screen readers and keyboard.
+
+### 3.2 The Glassmorphic Design System
+- Utilize **CSS Custom Properties** to facilitate real-time theme switching (Deep Space, Nordic Frost, etc.).
+- Embody the "Apple Aesthetic": High whitespace, `backdrop-filter` glass effects, soft shadows, and perfectly rounded geometry.
+- Implement a responsive grid using `display: grid` that adapts fluidly from mobile portrait to desktop landscape.
+
+---
+
+## ⚡ Phase 4: Interaction & UX Orchestration (`ui.js`)
+**Architectural Goal:** Bridge the gap between logic and user, creating a tactile, emotive, and frictionless interface.
+
+### 4.1 The Input Flow
+- Implement high-precision cell selection logic with immediate visual feedback (active row/col/box highlighting).
+- Bind keyboard listeners for `Arrow Keys` to enable pro-level navigation.
+- Sync the Numeric Keypad to update the state layer and trigger optimized, in-place DOM re-renders.
+
+### 4.2 Emotive Feedback & Motion
+- **Tactile Audio:** Integrate the Web Audio API for micro-interactions (input clicks, error tones, victory fanfares).
+- **Visual Flourish:** Implement smooth CSS transitions for highlights and a "Confetti Burst" via `confetti.js` upon victory.
+
+---
+
+## ✨ Phase 5: Final Polish & Quality Assurance
+**Architectural Goal:** Finalize the product for production-grade deployment.
+
+- **Performance Audit:** Ensure the background particle constellation (`background.js`) maintains 60fps even on lower-powered mobile devices.
+- **Cross-Platform Integrity:** Validate consistent behavior across Chromium, WebKit (Safari), and Gecko (Firefox) engines.
+- **Edge Case Hardening:** Rigorous testing of "impossible" user flows (e.g., rapid undo/redo during a move).

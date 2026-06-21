@@ -1,198 +1,72 @@
-# Theris Sudoku - Improvement Plan
+# 🛠️ Theris Sudoku - Engineering Roadmap & Optimization Log
 
-This document tracks all planned improvements for Theris Sudoku, organized by phase and priority. Each step includes checkboxes for tracking progress.
-
----
-
-## Phase 1: Bug Fixes (Low Effort / High Priority)
-
-All Phase 1 items complete. Applied fixes:
-
-- [x] **1.1** Removed duplicate `</header>` tag from `index.html`
-- [x] **1.3** Merged duplicate `.cell-notes` / `.note-digit` CSS blocks in `style.css` (also updated to use `var(--accent-color)` for cross-theme consistency)
-- [x] **Layout fix** Corrected vertical box-border selectors from fragile `:nth-child(3n)` to precise `9n+3` / `9n+6` — outer grid edge no longer gets double-thick border
+This document tracks the evolution, optimization, and feature expansion of the Theris Sudoku engine. It serves as both a historical record of completed fixes and a strategic blueprint for technical excellence.
 
 ---
 
-## Phase 2: Code Quality (Medium Effort / Refactor Only)
+## ✅ Completed Milestones (The Foundation)
 
-### 2.1 DRY `findHiddenSingle` Method
-- **File:** `engine.js`
-- **Lines:** 217–263
-- **Details:** 45 lines of nearly identical copy-pasted logic for rows/cols/boxes. Extract a generic helper `getPossibleRegions(board, candidates, number, regionType)` that accepts the region type as input. Cuts code by ~60% while improving readability and testability.
+### Phase 1: Critical Bug Fixes
+*Resolved structural and rendering regressions to ensure baseline stability.*
 
-### 2.2 ~~Clarify Dual Hint API~~ ✅ Done (Option A — merged into single logic-based getHint)
-- [x] Replaced the trivial `getHint()` that just filled from the solution array with a proper two-strategy hint system:
-  - **Strategy 1 — Naked Singles:** finds cells where only one candidate value is possible given row/col/box constraints, then places it.
-  - **Strategy 2 — Hidden Singles:** for each unit (row/column/box), finds values that can only go in one empty cell within that unit's constraints, then places it.
-  - **Fallback:** brute-force from solution array (rarely hit on Easy/Medium puzzles).
-- No separate `getAdvancedHint()` or `peekHint()` existed in practice — there was only the original `getHint()`. Option A meant improving this single method, which is now complete.
+- [x] **DOM Integrity**: Eliminated redundant `</header>` tags in `index.html`.
+- [x] **CSS Optimization**: Refactored `.cell-notes` and `.note-digit` selectors, standardizing on `var(--accent-color)` for cross-theme consistency.
+- [x] **Geometric Precision**: Corrected vertical box-border logic, replacing fragile `:nth-child(3n)` with precise `9n+3`/`9n+6` selectors to eliminate edge thickness doubling.
 
-### 2.3 Replace Magic Numbers with Named Constants
-- **Files:** Scattered across `engine.js`, `state.js`, `ui.js`
-- **Details:** Replace raw literals with descriptive names:
-  ```javascript
-  const BOARD_SIZE = 9;
-  const BOX_SIZE = 3;
-  const TOTAL_CELLS = 81;
-  const MAX_MISTAKES = 3;
-  const HINTS_MAX_DISTANCE = 150;
-  // etc.
-  ```
+### Phase 2b: User Experience Enhancements
+*Implemented high-impact features for immediate usability improvement.*
 
-### 2.4 Guard Against Corrupted/Outdated localStorage State
-- **File:** `state.js`
-- **Lines:** 210–216
-- **Details:** Add a shape validation check before assigning loaded data:
-  ```javascript
-  if (saved && saved.game && Array.isArray(saved.game.currentBoard)) { ... }
-  else { /* fallback to fresh game */ }
-  ```
-- Prevents crashes from stale or manually corrupted saves.
-
-### Phase 2 Checklist
-```bash
-- [ ] 2.1 DRY findHiddenSingle method
-- [ ] 2.2 Clarify dual hint API (decision needed)
-- [ ] 2.3 Replace magic numbers with named constants
-- [ ] 2.4 Guard against corrupted localStorage state
-- [ ] 2.5 Move difficulty clue counts to a central Config object
-- [ ] 2.6 Implement Constraint Propagation (AC-3) in the solver
-```
+- [x] **Persistent Aesthetic**: Integrated `localStorage` synchronization for user theme preferences (`sudoku_theme`).
+- [x] **Temporal Precision**: Refactored the timer architecture from an interval-driven counter to a real-time `Date.now()` delta, ensuring zero drift during tab switching or backgrounding.
 
 ---
 
-## Phase 2b: Completed Enhancements
 
-The following were implemented recently and are no longer pending:
 
-- [x] **Theme persistence** (`ui.js`): Theme selection now saved to `localStorage('sudoku_theme')` and restored on load
-- [x] **Timer accuracy** (`state.js` + `ui.js`): Replaced tick-counter with real elapsed time via `Date.now()` delta — no more interval drift
+## 🚀 Active Refactoring (Phase 2: Code Integrity)
 
----
+*Focus: Reducing technical debt and enhancing algorithmic efficiency.*
 
-## Phase 3: UX & Usability (High Perceived-Impact)
-
-### 3.1 Add Arrow-Key Grid Navigation
-- **File:** `ui.js`
-- **Lines:** 126–141 (keyboard listener)
-- **Details:** Add handlers for `ArrowUp/Down/Left/Right` that move `selectedCell` to the adjacent row/column, wrapping at edges. Reuse existing highlight logic for the new selection so row/col/box highlighting still works correctly.
-
-### 3.2 Dedicated "Clear Cell" Button
-- **Files:** `index.html` (UI) + `ui.js:147–172` (logic)
-- **Details:** Add a clear/eraser icon button next to the numpad ✕ for easier phone/mobile access. Enable right-click on grid cells as an alternative. Currently users must click ✕ or press Backspace which isn't obvious.
-
-### 3.3 ~~Persist Theme Preference~~ ✅ Done
-- [x] (Moved to Phase 2b — now complete)
-
-### 3.4 Peek-Hint Without Auto-Fill
-- **Files:** `engine.js:120–146` + new `ui.js` handler
-- **Details:** Add a "Peek" hint variant that uses `analyzeHint()` to show the explanation message via `showHintMessage()` but does NOT call `setCell()`. Lets users learn logic without having their progress overwritten.
-
-### 3.5 New Puzzle on Current Difficulty (Dedicated Button)
-- **Files:** `index.html` + `ui.js`
-- **Details:** Add a "New Game" button separate from the difficulty selector that:
-  - Generates a fresh puzzle at the currently selected difficulty
-  - Shows a confirmation modal if there's unsaved progress
-  - Prevents accidental difficulty changes
-
-### Phase 3 Checklist
-```bash
-- [ ] 3.1 Arrow-key grid navigation
-- [ ] 3.2 Dedicated clear cell button
-- [x] 3.3 ~~Persist theme preference~~ (moved to Phase 2b)
-- [ ] 3.4 Peek-hint without auto-fill
-- [ ] 3.5 New puzzle on current difficulty (dedicated button)
-```
+- [ ] **2.1 Logic De-duplication**: Extract a generic helper in `engine.js` to refactor the highly redundant `findHiddenSingle` logic, reducing codebase footprint by ~60%.
+- [ ] **2.3 Constant Standardization**: Replace all magic number literals (e.g., `9`, `3`, `81`) with descriptive global constants (`BOARD_SIZE`, `BOX_SIZE`).
+- [ ] **2.4 Schema Validation**: Implement a robust shape-validation guard in `state.js` to prevent application crashes caused by corrupted or outdated `localStorage` payloads.
+- [ ] **2.5 Configuration Centralization**: Decouple difficulty clue counts from the generator and migrate them into a centralized, immutable `Config` object.
+- [ ] **2.6 Algorithmic Optimization**: Integrate **Constraint Propagation (AC-3)** within the solver to accelerate pruning during high-complexity puzzle generation.
 
 ---
 
-## Phase 4: Sudoku Domain Depth (Requires Algorithm Changes / Testing)
+## 🎮 UX Evolution (Phase 3: User Interaction)
 
-### 4.1 Difficulty Classification by Solving Technique
-- **File:** `engine.js`
-- **Details:** Current difficulty is purely based on clue count, which doesn't correlate with actual solving complexity. Implement technique-based classification:
-  - "Easy" puzzles where all cells can be solved using only Naked Singles and Hidden Singles
-  - "Medium" where naked pairs/cages are needed
-  - "Hard" where X-Wing or Swordfish techniques are required
-  - "Expert" where chaining/bifurcation is the only path
-- **Addendum:** Implement a logic-only "Peek Hint" (Phase 3.4) that explains these techniques without filling cells.
+*Focus: Minimizing friction and maximizing professional input flow.*
 
-This matches how professional Sudoku apps classify difficulty and gives players what they expect rather than just arbitrary clue counts.
-
-### 4.2 Adjustable Maximum Mistakes
-- **Files:** `state.js` (maxMistakes config) + `ui.js` (settings UI)
-- **Details:** Replace the hardcoded `MAX_MISTAKES = 3` with an adjustable setting: 3, 5, 10, or "Unlimited". Give players control over how penalty-hard their game is.
-
-### 4.3 Show Possible Moves for Selected Cell
-- **File:** `engine.js` (new method) + `ui.js` (rendering)
-- **Details:** When a cell is selected and empty, show small dots/numbers indicating which values are valid (no conflicts in that row/col/box). Standard Sudoku app feature that helps users verify they won't place an illegal value before committing.
-
-### 4.4 Better Same-Value Highlight for Error Cells
-- **File:** `style.css` + `ui.js:226–228`
-- **Details:** When showing same-number highlighting, distinguish between a matching clue cell AND a player's error cell with a distinct style (outlined border + red tint) so users don't confuse the two states visually.
-
-### Phase 4 Checklist
-```bash
-- [ ] 4.1 Difficulty classification by solving technique
-- [ ] 4.2 Adjustable maximum mistakes
-- [ ] 4.3 Show possible moves for selected cell
-- [ ] 4.4 Better same-value highlight for error cells
-```
+- [ ] **3.1 Keyboard Mastering**: Implement `ArrowKey` navigation handlers in `ui.js`, allowing seamless cell traversal and wrapping at grid boundaries.
+- [ 
+  ] **3.2 Eradication of Redundancy**: Add a dedicated "Clear Cell" utility button to the control dashboard for easier mobile/touch interaction.
+- [ ] **3.4 The "Peek" Capability**: Develop a non-mutating hint variant that utilizes `analyzeHint()` to provide logical explanations without altering the `currentBoard`.
+- [ ] **3.5 One-Click Regeneration**: Implement a "New Game" action that generates a fresh puzzle at the *currently selected* difficulty level without requiring menu navigation.
 
 ---
 
-## Phase 5: Polish & Performance (Nice-to-Have / Defer if Needed)
+## 🧩 Domain Mastery (Phase 4: Algorithmic Depth)
 
-### 5.1 Share Puzzle via URL
-- **Details:** Encode the initial grid in standard format (base85 per standard Sudoku notation) and add a "Share" button that copies a URL to the clipboard. Users can share or generate specific puzzles with friends.
+*Focus: Elevating gameplay from arbitrary clue counting to true logic-based challenges.*
 
-### 5.2 Optimize Background Particles Performance
-- **File:** `background.js`
-- **Details:** Replace O(n²) pairwise distance checks (100 particles = ~5,000 iterations/frame) with spatial bucketing. Add a "Reduced motion" setting on mobile for battery/performance savings.
-
-### 5.3 Track and Display Game Statistics
-- **Files:** `state.js` + new stats display in game-over modal
-- **Details:** Store per-difficulty statistics (best time, games played, hints used) in localStorage. Show a small summary alongside the timer on the game-over screen.
-
-### 5.4 Keyboard Shortcut Shortcut Reference
-- **Details:** Pressing `?` shows an overlay listing all keyboard shortcuts: arrow navigation, N for notes, Ctrl+Z for undo, etc. Improves power-user adoption for desktop players.
-
-### Phase 5 Checklist
-```bash
-- [ ] 5.1 Share puzzle via URL
-- [ ] 5.2 Optimize background particles performance
-- [ ] 5.3 Track and display game statistics
-- [ ] 5.4 Keyboard shortcut reference overlay
-```
+- [ ] **4.1 Technique-Based Classification**: Re-engineer the difficulty engine to classify puzzles based on required solving depth (e.g., Naked Singles $\rightarrow$ X-Wing $\rightarrow$ Chaining).
+- [ ] **4.2 Adaptive Error Tolerance**: Replace the hardcoded `MAX_MISTAKES` with an adjustable user preference (3, 5, 10, or Unlimited).
+- [ ] **4.3 Predictive UI**: Implement a "Possible Moves" overlay that highlights valid candidates for a selected empty cell based on real-time constraint checks.
+- [ ] **4.4 Visual Error Distinction**: Enhance the CSS error state to visually differentiate between "clue conflicts" and "user errors" using distinct border treatments.
 
 ---
 
-## Effort Estimate
+## ✨ Final Polish (Phase 5: Performance & Reach)
 
-| Phase | Estimated Time | Priority | Notes | Status |
-|-------|---------------|----------|-------|--------|
-| Phase 1: Bug Fixes | ~30 min | Critical (now) | Zero risk, removes real bugs | ✅ Complete |
-| Phase 2: Code Quality | ~1 hour | High (before features) | Pure refactor, no behavioral change | ⬜ Pending |
-| Phase 2b: Recent Enhancements | ~15 min | Done | Theme persistence + timer accuracy | ✅ Complete |
-| Phase 3: UX & Usability | 1–2 hours | High (biggest perceptual impact) | Improves daily gameplay flow |
-| Phase 4: Sudoku Depth | 2–3 hours | Medium (needs testing) | Core algorithm changes require validation |
-| Phase 5: Polish & Perf | 1–2 hours | Low/Easy-defer | Nice-to-have, won't block launch |
+*Focus: Optimizing for broad device compatibility and social connectivity.*
 
-**Total all phases: ~6–9 hours of work.**
+- [ ] **5.1 Social Connectivity**: Implement a "Share Puzzle" feature via URL encoding (Base85), allowing users to distribute unique board states via clipboard.
+- [ ] **5.2 Particle Engine Optimization**: Refactor `background.js` using spatial bucketing to mitigate $O(n^2)$ complexity during particle collision/interaction checks.
+- [ ] **5.3 Comprehensive Analytics**: Integrate a persistent statistics engine to track best times and hint usage per difficulty level in `localStorage`.
+- [ ] **5.4 Power-User Toolbox**: Implement a keyboard shortcut reference overlay (triggered by `?`) for advanced desktop users.
 
 ---
 
-## Questions to Resolve Before Starting
-
-1. **Hints (Phase 3.4):** Two-approach hints or one? Users who want to learn should see hint explanations without auto-filling. Those who want saving time need the fill. Which is more important for this project?
-2. **Mistake Limit (Phase 4.2):** Adjustable via settings slider or keep at 3 as a hard design choice?
-3. **Difficulty Algorithm (Phase 4.1):** Hybrid approach (clue count + technique depth) or purely technique-based?
-
----
-
-## Status Legend
-
-- [ ] Not started
-- [x] Done
-- [~] In progress
+**Total Estimated Effort Remaining: ~12–18 hours of engineering.**
