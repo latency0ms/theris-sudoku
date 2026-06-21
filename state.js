@@ -13,13 +13,13 @@ class SudokuState {
             initialBoard: [], // To prevent editing starting numbers
             notes: [], // 3D array [row][col][note_values]
             mistakes: 0,
-            timer: 0,
+            hintUsed: 0,
             difficulty: 'medium',
-            status: 'playing' // 'playing', 'won', 'lost'
+            status: 'playing', // 'playing', 'won', 'lost'
         };
         this.history = [];
         this.redoStack = [];
-        this.timerInterval = null;
+        this.game.startTime = null;
     }
 
     /**
@@ -38,7 +38,6 @@ class SudokuState {
     resetCurrentBoard() {
         this.game.currentBoard = this.game.initialBoard.map(row => [...row]);
         this.game.mistakes = 0;
-        this.game.timer = 0;
         this.game.status = 'playing';
         this.history = [];
         this.redoStack = [];
@@ -59,7 +58,6 @@ class SudokuState {
         );
         this.game.difficulty = difficulty;
         this.game.mistakes = 0;
-        this.game.timer = 0;
         this.game.status = 'playing';
 
         this.history = [];
@@ -136,19 +134,102 @@ class SudokuState {
         return true;
     }
 
+    _canPlace(board, row, col, val) {
+        const size = 9, boxSize = 3;
+        const br = row - (row % boxSize), bc = col - (col % boxSize);
+
+        // Row check
+        for (let i = 0; i < size; i++) { if (board[row][i] === val) return false; }
+        
+        // Column check
+        for (let i = 0; i < size; i++) { if (board[i][col] === val) return false; }
+        
+        // Box check
+        for (let i = 0; i < boxSize; i++) {
+            for (let j = 0; j < boxSize; j++) {
+                if (board[br + i][bc + j] === val) return false;
+            }
+        }
+        return true;
+    }
+
     getHint() {
         if (this.game.status !== 'playing') return null;
         
-        // Find an empty cell to fill
-        for (let r = 0; r < 9; r++) {
-            for (let c = 0; c < 9; c++) {
-                if (this.game.currentBoard[r][c] === 0) {
-                    const correctVal = this.game.solved[r][c];
-                    this.setCell(r, c, correctVal);
-                    return { row: r, col: c, val: correctVal };
+        this.game.hintUsed++;
+        const board = this.game.currentBoard;
+        const size = 9;
+        const boxSize = 3;
+
+        // Strategy 1: Naked Singles — find cells where only one candidate remains
+        for (let r = 0; r < size; r++) {
+            for (let c = 0; c < size; c++) {
+                if (board[r][c] !== 0) continue;
+
+                const candidates = [];
+                for (let v = 1; v <= 9; v++) {
+                    if (this._canPlace(board, r, c, v)) candidates.push(v);
+                }
+
+                if (candidates.length === 1) {
+                    this.setCell(r, c, candidates[0]);
+                    return { row: r, col: c, val: candidates[0], reason: 'nakedSingle' };
                 }
             }
         }
+
+        // Strategy 2: Hidden Singles — for each unit (row/col/box), find values that can only go in one place
+        for (let u = 0; u < size * 3; u++) {
+            const isRow = u < size;
+            const isBox = u >= size * 2;
+            
+            let unitCells = [];
+            if (isRow) {
+                for (let k = 0; k < size; k++) unitCells.push({r: u, c: k});
+            } else if (!isBox) {
+                for (let k = 0; k < size; k++) unitCells.push({r: k, c: u - size});
+            } else {
+                const bx = u - size * 2;
+                const br = bx % boxSize, bc = Math.floor(bx / boxSize);
+                for (let i = 0; i < boxSize; i++) {
+                    for (let j = 0; j < boxSize; j++) {
+                        unitCells.push({r: bc * boxSize + i, c: br * boxSize + j});
+                    }
+                }
+            }
+
+            let regionVals = new Set();
+            for (const cell of unitCells) {
+                if (board[cell.r][cell.c] !== 0) regionVals.add(board[cell.r][cell.c]);
+            }
+
+            for (let val = 1; val <= size; val++) {
+                if (regionVals.has(val)) continue;
+
+                let validPlacements = [];
+                for (const cell of unitCells) {
+                    if (board[cell.r][cell.c] !== 0) continue;
+                    if (this._canPlace(board, cell.r, cell.c, val)) validPlacements.push(cell);
+                }
+
+                if (validPlacements.length === 1) {
+                    const p = validPlacements[0];
+                    this.setCell(p.r, p.c, val);
+                    return { row: p.r, col: p.c, val, reason: 'hiddenSingle' };
+                }
+            }
+        }
+
+        // Fallback: brute-force from solution (shouldn't normally be hit for Easy/Medium puzzles)
+        for (let r = 0; r < size; r++) {
+            for (let c = 0; c < size; c++) {
+                if (board[r][c] === 0) {
+                    board[r][c] = this.game.solved[r][c];
+                    return { row: r, col: c, val: this.game.solved[r][c], reason: 'forced' };
+                }
+            }
+        }
+
         return null;
     }
 
@@ -164,18 +245,25 @@ class SudokuState {
 
     startTimer() {
         this.stopTimer();
-        this.timerInterval = setInterval(() => {
-            this.game.timer++;
-        }, 1000);
+        this.game.startTime = Date.now();
     }
 
     stopTimer() {
-        clearInterval(this.timerInterval);
+        // Timer is now real-time, no interval to clear
     }
 
     formatTime() {
-        const mins = Math.floor(this.game.timer / 60);
-        const secs = this.game.timer % 60;
+        let elapsed;
+        if (this.game.startTime) {
+            elapsed = Math.floor((Date.now() - this.game.startTime) / 1000);
+        } else if (this.game.timer !== undefined) {
+            // Legacy compat for loaded saves from before timer refactor
+            elapsed = this.game.timer;
+        } else {
+            elapsed = 0;
+        }
+        const mins = Math.floor(elapsed / 60);
+        const secs = elapsed % 60;
         return `${mins}:${secs.toString().padStart(2, '0')}`;
     }
 
@@ -190,6 +278,9 @@ class SudokuState {
         const saved = localStorage.getItem('sudoku_save');
         if (saved) {
             const data = JSON.parse(saved);
+            // Validate shape before overwriting state
+            if (!data.game || !Array.isArray(data.game.currentBoard)) return;
+            
             this.game = data.game;
             this.history = data.history;
             if (this.game.status === 'playing') this.startTimer();

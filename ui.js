@@ -22,6 +22,15 @@ class SudokuUI {
     }
 
     init() {
+        // Restore saved theme
+        const savedTheme = localStorage.getItem('sudoku_theme');
+        if (savedTheme) this.setTheme(savedTheme);
+
+        // Theme selection active state
+        document.querySelectorAll('.btn-theme').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.theme === savedTheme || (!savedTheme && btn.dataset.theme === 'default'));
+        });
+
         // Start a fresh game on load (no persistence)
         this.startNewGame('medium');
 
@@ -53,6 +62,11 @@ class SudokuUI {
             btn.addEventListener('click', (e) => {
                 const theme = e.target.dataset.theme;
                 this.setTheme(theme);
+                if (theme === 'default') {
+                    localStorage.removeItem('sudoku_theme');
+                } else {
+                    localStorage.setItem('sudoku_theme', theme);
+                }
                 
                 document.querySelectorAll('.btn-theme').forEach(b => b.classList.remove('active'));
                 e.target.classList.add('active');
@@ -167,7 +181,7 @@ class SudokuUI {
         for (let r = 0; r < 9; r++) {
             for (let c = 0; c < 9; c++) {
                 const cell = document.createElement('div');
-                cell.classList.add('cell');
+                cell.className = 'cell';
                 if (initial[r][c] !== 0) cell.classList.add('initial');
                 else if (board[r][c] !== 0) cell.classList.add('user-input');
 
@@ -175,11 +189,11 @@ class SudokuUI {
                 if (val === 0) {
                     // Render Notes if cell is empty
                     const notesContainer = document.createElement('div');
-                    notesContainer.classList.add('cell-notes');
-                    
+                    notesContainer.className = 'cell-notes';
+
                     for (let n = 1; n <= 9; n++) {
                         const noteDigit = document.createElement('div');
-                        noteDigit.classList.add('note-digit');
+                        noteDigit.className = 'note-digit';
                         const hasNote = this.state.game.notes[r][c].includes(n);
                         noteDigit.textContent = hasNote ? n : '';
                         notesContainer.appendChild(noteDigit);
@@ -195,7 +209,8 @@ class SudokuUI {
                 } else if (this.selectedCell) {
                     const { row, col } = this.selectedCell;
                     const cellVal = board[r][c];
-                    if (row === r || col === c || (Math.floor(row/3) === Math.floor(r/3) && Math.floor(col/3) === Math.floor(c/3))) {
+                    if (row === r || col === c || 
+                        (Math.floor(row/3) === Math.floor(r/3) && Math.floor(col/3) === Math.floor(c/3))) {
                         cell.classList.add('highlight');
                     }
                     if (cellVal !== 0 && cellVal === board[row][col]) {
@@ -215,7 +230,14 @@ class SudokuUI {
     }
 
     updateTimerDisplay() {
-        this.timerEl.textContent = this.state.formatTime();
+        if (this.state.game.startTime) {
+            const elapsed = Math.floor((Date.now() - this.state.game.startTime) / 1000);
+            const mins = Math.floor(elapsed / 60);
+            const secs = elapsed % 60;
+            this.timerEl.textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
+        } else {
+            this.timerEl.textContent = this.state.formatTime();
+        }
     }
 
     triggerErrorAnimation(row, col) {

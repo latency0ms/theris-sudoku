@@ -192,6 +192,7 @@ header {
     overflow: hidden;
     aspect-ratio: 1 / 1;
     box-shadow: 0 12px 24px rgba(0,0,0,0.3);
+    will-change: transform;
 }
 
 .cell {
@@ -206,8 +207,12 @@ header {
     user-select: none;
 }
 
-.cell:nth-child(3n) { border-right: 2px solid rgba(255, 255, 255, 0.15); }
-.cell:nth-child(9n) { border-right: 0.5px solid rgba(255, 255, 255, 0.05); }
+.cell:nth-child(9n+3) { 
+    border-right: 2.5px solid rgba(255, 255, 255, 0.15);
+}
+.cell:nth-child(9n+6) { 
+    border-right: 2.5px solid rgba(255, 255, 255, 0.15);
+}
 
 .cell:nth-child(n+19):nth-child(-n+27),
 .cell:nth-child(n+46):nth-child(-n+54) {
@@ -455,17 +460,6 @@ header {
     }
 }
 
-
-/* Note rendering inside cells */
-.cell-notes {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    grid-template-rows: repeat(3, 1fr);
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-}
-
 .app-credits {
     text-align: center;
     font-size: 11px;
@@ -475,19 +469,4 @@ header {
     padding-bottom: 2px;
     font-weight: 500;
     letter-spacing: 0.5px;
-}
-
-
-.note-digit {
-    font-size: 8px;
-    color: #ff3b30; /* Red color for notes */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    line-height: 1;
-    font-weight: 600;
-}
-
-.cell.selected .note-digit {
-    color: var(--accent-color);
 }
