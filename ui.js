@@ -253,12 +253,93 @@ class SudokuUI {
     showGameOver(won) {
         if (won) {
             Confetti.shoot();
+            this.playCheeringSound();
+        } else {
+            this.playSadSound();
         }
         this.modalTitle.textContent = won ? 'Puzzle Solved!' : 'Game Over';
         this.modalMsg.textContent = won 
             ? `Great job! Time: ${this.state.formatTime()}` 
             : 'You made too many mistakes.';
         this.overlayEl.classList.remove('hidden');
+    }
+
+    /**
+     * Plays a 5-note descending minor-scale melody to convey "pity" on loss.
+     * Designed same audio pipeline as existing sounds — no external assets needed.
+     */
+    playSadSound() {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const now = ctx.currentTime;
+
+        const melody = [220, 196, 175, 165, 147]; // A3 → G#3 → F#3 → E3 → D3
+
+        melody.forEach((freq, i) => {
+            const start = now + i * 0.4;
+            const dur = 0.38;
+
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, start);
+
+            gain.gain.setValueAtTime(0, start);
+            gain.gain.linearRampToValueAtTime(0.1, start + 0.04);     // attack
+            gain.gain.exponentialRampToValueAtTime(0.008, start + dur); // release into silence
+
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+
+            osc.start(start);
+            osc.stop(start + dur + 0.01);
+        });
+
+        // Clean up AudioContext after last note finishes (~1.9s)
+        setTimeout(() => ctx.close(), 2100);
+    }
+
+    /**
+     * Plays a bright, ascending major-scale fanfare to celebrate winning.
+     * Uses two overlapping arpeggios for richness — same Web Audio pipeline.
+     */
+    playCheeringSound() {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const now = ctx.currentTime;
+
+        // Two overlapping major-scale arpeggio patterns
+        // Pattern A: higher voice (C5 → E5 → G5 → C6 pattern)
+        const patA = [523, 659, 784, 1047];
+        // Pattern B: lower harmonizing voice (G4 → C5 → E5 → G5 pattern)
+        const patB = [392, 523, 659, 784];
+
+        [patA, patB].forEach((pattern, track) => {
+            pattern.forEach((freq, i) => {
+                const start = now + i * 0.15;
+                const dur = 0.25;
+
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+
+                // Alternate between sine and triangle for timbre variety
+                osc.type = track === 0 ? 'triangle' : 'sine';
+                osc.frequency.setValueAtTime(freq, start);
+
+                gain.gain.setValueAtTime(0, start);
+                gain.gain.linearRampToValueAtTime(0.08, start + 0.03);     // attack
+                gain.gain.setValueAtTime(0.06, start + dur - 0.05);        // sustain hold
+                gain.gain.exponentialRampToValueAtTime(0.003, start + dur); // release
+
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+
+                osc.start(start);
+                osc.stop(start + dur + 0.01);
+            });
+        });
+
+        // Clean up
+        setTimeout(() => ctx.close(), 700);
     }
 
     /**
