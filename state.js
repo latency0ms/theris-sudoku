@@ -15,7 +15,8 @@ class SudokuState {
             mistakes: 0,
             timer: 0,
             difficulty: 'medium',
-            status: 'playing' // 'playing', 'won', 'lost'
+            status: 'playing', // 'playing', 'won', 'lost'
+            strictMode: false // Prevent invalid moves
         };
         this.history = [];
         this.redoStack = [];
@@ -88,11 +89,27 @@ class SudokuState {
     }
 
     /**
+     * Gets a logical hint based on the current board state.
+     */
+    getLogicalHint() {
+        if (this.game.status !== 'playing') return null;
+        const hint = this.engine.findLogicalHint(this.game.currentBoard);
+        return hint;
+    }
+
+    /**
      * Sets a value in the current board
      */
     setCell(row, col, val) {
         if (this.game.status !== 'playing') return false;
         if (this.game.initialBoard[row][col] !== 0) return false; // Cannot change initial clues
+
+        // Strict Mode Check
+        if (this.game.strictMode && val !== 0) {
+            if (!this.engine.isValid(this.game.currentBoard, row, col, val)) {
+                return false; // Block invalid entry
+            }
+        }
 
         const prevVal = this.game.currentBoard[row][col];
         if (prevVal === val) return true;

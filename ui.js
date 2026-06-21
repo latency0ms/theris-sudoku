@@ -10,6 +10,7 @@ class SudokuUI {
         
         this.selectedCell = null; // {row, col}
         this.noteMode = false; // Toggle for note entry
+        this.strictMode = false; // Toggle for strict validation
         
         // DOM Elements
         this.gridEl = document.getElementById('sudoku-grid');
@@ -86,9 +87,14 @@ class SudokuUI {
             this.playAudio('redo');
         });
         document.getElementById('hint-btn').addEventListener('click', () => {
-            if (this.state.getHint()) {
-                this.renderGrid();
+            const hint = this.state.getLogicalHint();
+            if (hint) {
+                alert(hint.msg);
+                // Optionally highlight the suggested cell
+                this.selectCell(hint.row, hint.col);
                 this.playAudio('hint');
+            } else {
+                alert("No simple logical moves found. Try using notes!");
             }
         });
 
@@ -105,8 +111,15 @@ class SudokuUI {
 
 
 
-        // Keyboard Support
+        // Strict Mode Toggle (Added Ctrl+S shortcut)
         window.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.key === 's') {
+                e.preventDefault();
+                this.strictMode = !this.strictMode;
+                this.state.game.strictMode = this.strictMode;
+                alert(`Strict Mode: ${this.strictMode ? 'ON' : 'OFF'} (Invalid moves blocked)`);
+            }
+
             if (e.key >= '1' && e.key <= '9') {
                 this.handleInput(parseInt(e.key));
             } else if (e.key === 'Backspace' || e.key === 'Delete') {
@@ -160,51 +173,63 @@ class SudokuUI {
             return;
         }
 
-        this.gridEl.innerHTML = '';
         const board = this.state.game.currentBoard;
         const initial = this.state.game.initialBoard;
 
+        // We only initialize the grid if it's empty to avoid destroying DOM entries
+        if (this.gridEl.children.length === 0) {
+            this.gridEl.innerHTML = ''; // Safety clear
+            for (let r = 0; r < 9; r++) {
+                for (let c = 0; c < 9; c++) {
+                    const cell = document.createElement('div');
+                    cell.classList.add('cell');
+                    cell.addEventListener('click', () => this.selectCell(r, c));
+                    this.gridEl.appendChild(cell);
+                }
+            }
+        }
+
+        // Update existing cells without changing their structure
+        const cells = this.gridEl.children;
         for (let r = 0; r < 9; r++) {
             for (let c = 0; c < 9; c++) {
-                const cell = document.createElement('div');
-                cell.classList.add('cell');
-                if (initial[r][c] !== 0) cell.classList.add('initial');
-                else if (board[r][c] !== 0) cell.classList.add('user-input');
-
+                const idx = r * 9 + c;
+                const cell = cells[idx];
                 const val = board[r][c];
-                if (val === 0) {
-                    // Render Notes if cell is empty
+
+                // Reset styles and content
+                cell.classList.remove('initial', 'user-input', 'selected', 'highlight');
+                if (initial[r][c] !== 0) cell.classList.add('initial');
+                else if (val !== 0) cell.classList.add('user-input');
+
+                // Update content: If value exists, show it; otherwise, build notes
+                if (val !== 0) {
+                    cell.textContent = val;
+                } else {
                     const notesContainer = document.createElement('div');
                     notesContainer.classList.add('cell-notes');
-                    
                     for (let n = 1; n <= 9; n++) {
                         const noteDigit = document.createElement('div');
                         noteDigit.classList.add('note-digit');
-                        const hasNote = this.state.game.notes[r][c].includes(n);
-                        noteDigit.textContent = hasNote ? n : '';
+                        noteDigit.textContent = this.state.game.notes[r][c].includes(n) ? n : '';
                         notesContainer.appendChild(noteDigit);
                     }
+                    cell.innerHTML = ''; 
                     cell.appendChild(notesContainer);
-                } else {
-                    cell.textContent = val;
                 }
 
-                // Selection & Highlighting logic
+                // Selection & Highlighting logic (identical to original)
                 if (this.selectedCell && this.selectedCell.row === r && this.selectedCell.col === c) {
                     cell.classList.add('selected');
                 } else if (this.selectedCell) {
                     const { row, col } = this.selectedCell;
-                    const cellVal = board[r][c];
                     if (row === r || col === c || (Math.floor(row/3) === Math.floor(r/3) && Math.floor(col/3) === Math.floor(c/3))) {
                         cell.classList.add('highlight');
                     }
-                    if (cellVal !== 0 && cellVal === board[row][col]) {
+                    if (val !== 0 && val === board[row][col]) {
                         cell.classList.add('highlight');
                     }
                 }
-
-                cell.addEventListener('click', () => this.selectCell(r, c));
-                this.gridEl.appendChild(cell);
             }
         }
     }
