@@ -56,6 +56,8 @@ All Phase 1 items complete. Applied fixes:
 - [ ] 2.2 Clarify dual hint API (decision needed)
 - [ ] 2.3 Replace magic numbers with named constants
 - [ ] 2.4 Guard against corrupted localStorage state
+- [ ] 2.5 Move difficulty clue counts to a central Config object
+- [ ] 2.6 Implement Constraint Propagation (AC-3) in the solver
 ```
 
 ---
@@ -114,6 +116,7 @@ The following were implemented recently and are no longer pending:
   - "Medium" where naked pairs/cages are needed
   - "Hard" where X-Wing or Swordfish techniques are required
   - "Expert" where chaining/bifurcation is the only path
+- **Addendum:** Implement a logic-only "Peek Hint" (Phase 3.4) that explains these techniques without filling cells.
 
 This matches how professional Sudoku apps classify difficulty and gives players what they expect rather than just arbitrary clue counts.
 
