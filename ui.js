@@ -11,6 +11,9 @@ class SudokuUI {
         this.selectedCell = null; // {row, col}
         this.noteMode = false; // Toggle for note entry
         
+        // Shared AudioContext to prevent browser throttling
+        this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
         // DOM Elements
         this.gridEl = document.getElementById('sudoku-grid');
         this.timerEl = document.getElementById('timer');
@@ -110,6 +113,15 @@ class SudokuUI {
             this.noteMode = !this.noteMode;
             e.target.classList.toggle('active', this.noteMode);
             this.playAudio('input');
+        });
+
+        // Clear button
+        document.getElementById('clear-btn').addEventListener('click', () => {
+            if (this.selectedCell) {
+                const { row, col } = this.selectedCell;
+                this.handleInput(0);  // Clear the cell by setting it to 0
+                this.playAudio('input');
+            }
         });
 
         // Restart Button
@@ -269,8 +281,7 @@ class SudokuUI {
      * Designed same audio pipeline as existing sounds — no external assets needed.
      */
     playSadSound() {
-        const ctx = new (window.AudioContext || window.webkitAudioContext)();
-        const now = ctx.currentTime;
+        const now = this.audioCtx.currentTime;
 
         const melody = [220, 196, 175, 165, 147]; // A3 → G#3 → F#3 → E3 → D3
 
@@ -278,8 +289,8 @@ class SudokuUI {
             const start = now + i * 0.4;
             const dur = 0.38;
 
-            const osc = ctx.createOscillator();
-            const gain = ctx.createGain();
+            const osc = this.audioCtx.createOscillator();
+            const gain = this.audioCtx.createGain();
 
             osc.type = 'sine';
             osc.frequency.setValueAtTime(freq, start);
@@ -289,14 +300,13 @@ class SudokuUI {
             gain.gain.exponentialRampToValueAtTime(0.008, start + dur); // release into silence
 
             osc.connect(gain);
-            gain.connect(ctx.destination);
+            gain.connect(this.audioCtx.destination);
 
             osc.start(start);
             osc.stop(start + dur + 0.01);
         });
 
-        // Clean up AudioContext after last note finishes (~1.9s)
-        setTimeout(() => ctx.close(), 2100);
+        // No need to close context - we're using a shared one
     }
 
     /**
@@ -304,8 +314,7 @@ class SudokuUI {
      * Uses two overlapping arpeggios for richness — same Web Audio pipeline.
      */
     playCheeringSound() {
-        const ctx = new (window.AudioContext || window.webkitAudioContext)();
-        const now = ctx.currentTime;
+        const now = this.audioCtx.currentTime;
 
         // Two overlapping major-scale arpeggio patterns
         // Pattern A: higher voice (C5 → E5 → G5 → C6 pattern)
@@ -318,8 +327,8 @@ class SudokuUI {
                 const start = now + i * 0.15;
                 const dur = 0.25;
 
-                const osc = ctx.createOscillator();
-                const gain = ctx.createGain();
+                const osc = this.audioCtx.createOscillator();
+                const gain = this.audioCtx.createGain();
 
                 // Alternate between sine and triangle for timbre variety
                 osc.type = track === 0 ? 'triangle' : 'sine';
@@ -331,31 +340,29 @@ class SudokuUI {
                 gain.gain.exponentialRampToValueAtTime(0.003, start + dur); // release
 
                 osc.connect(gain);
-                gain.connect(ctx.destination);
+                gain.connect(this.audioCtx.destination);
 
                 osc.start(start);
                 osc.stop(start + dur + 0.01);
             });
         });
 
-        // Clean up
-        setTimeout(() => ctx.close(), 700);
+        // No need to close context - we're using a shared one
     }
 
     /**
      * Simple Web Audio API beeps to avoid needing external mp3 files
      */
     playAudio(type) {
-        const ctx = new (window.AudioContext || window.webkitAudioContext)();
-        const now = ctx.currentTime;
+        const now = this.audioCtx.currentTime;
 
         if (type === 'input') {
             // Magic Wand Sparkle effect: Rapidly ascending high-pitched tones
             const notes = [880, 1108, 1318, 1760]; // A5 -> C#6 -> E6 -> A6
             notes.forEach((freq, i) => {
                 const startOffset = i * 0.04; // Play notes every 40ms
-                const osc = ctx.createOscillator();
-                const gain = ctx.createGain();
+                const osc = this.audioCtx.createOscillator();
+                const gain = this.audioCtx.createGain();
                 
                 osc.type = 'sine';
                 osc.frequency.setValueAtTime(freq, now + startOffset);
@@ -365,15 +372,15 @@ class SudokuUI {
                 gain.gain.exponentialRampToValueAtTime(0.01, now + startOffset + 0.15);
                 
                 osc.connect(gain);
-                gain.connect(ctx.destination);
+                gain.connect(this.audioCtx.destination);
                 osc.start(now + startOffset);
                 osc.stop(now + startOffset + 0.15);
             });
         } else {
-            const osc = ctx.createOscillator();
-            const gain = ctx.createGain();
+            const osc = this.audioCtx.createOscillator();
+            const gain = this.audioCtx.createGain();
             osc.connect(gain);
-            gain.connect(ctx.destination);
+            gain.connect(this.audioCtx.destination);
 
             if (type === 'error') {
                 osc.frequency.setValueAtTime(150, now);
